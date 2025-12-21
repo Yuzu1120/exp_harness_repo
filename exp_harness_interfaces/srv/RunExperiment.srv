@@ -1,0 +1,14 @@
+string experiment_id
+string metric_topic
+
+string target_node
+string param_name
+float64 a_value
+float64 b_value
+
+float64 pre_duration_sec
+float64 post_duration_sec
+---
+bool accepted
+string message
+
