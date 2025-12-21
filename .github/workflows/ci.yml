@@ -4,6 +4,7 @@ on: push
 
 jobs:
   test:
+    timeout-minutes: 8
     runs-on: ubuntu-22.04
     container: ryuichiueda/ubuntu22.04-ros2:latest
 
