@@ -28,9 +28,13 @@ echo "[TEST] launch start"
 ros2 launch exp_harness demo.launch.py > /tmp/exp_harness_launch.log 2>&1 &
 LAUNCH_PID=$!
 
+sleep 2
+echo "[TEST] launch log (head)"
+head -n 50 /tmp/exp_harness_launch.log || true
+
 echo "[TEST] wait service ready"
 READY=0
-for i in $(seq 1 20); do
+for i in $(seq 1 10); do
   if ros2 service list 2>/dev/null | grep -q "^/experiment/run$"; then
     if ros2 service type /experiment/run >/dev/null 2>&1; then
       READY=1
