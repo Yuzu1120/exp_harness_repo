@@ -1,0 +1,28 @@
+name: ci
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    container: ryuichiueda/ubuntu22.04-ros2:latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: build and test
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          mkdir -p /root/ros2_ws/src/exp_harness_repo
+          rsync -av ./ /root/ros2_ws/src/exp_harness_repo/
+
+          cd /root/ros2_ws
+          source /opt/ros/humble/setup.bash
+          colcon build --symlink-install
+
+          source /root/ros2_ws/install/setup.bash
+
+          bash /root/ros2_ws/src/exp_harness_repo/exp_harness/test/test.bash
+
