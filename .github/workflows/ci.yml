@@ -13,7 +13,7 @@ jobs:
       - name: build and test
         shell: bash
         run: |
-          set -euxo pipefail
+          set -exo pipefail
 
           mkdir -p /root/ros2_ws/src/exp_harness_repo
           rsync -av ./ /root/ros2_ws/src/exp_harness_repo/
