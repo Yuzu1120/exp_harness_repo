@@ -4,10 +4,14 @@
 
 set -euo pipefail
 
+set +u
 source /opt/ros/humble/setup.bash
+set -u
 
 if [ -f "install/setup.bash" ]; then
+  set +u
   source install/setup.bash
+  set -u
 fi
 
 echo "[TEST] launch start"
