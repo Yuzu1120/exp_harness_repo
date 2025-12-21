@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2025 Yuzuki Fujita
 # SPDX-License-Identifier: BSD-3-Clause
 
-set -euo pipefail
+set -eo pipefail
 
 LAUNCH_PID=""
 
@@ -25,14 +25,10 @@ on_err() {
 }
 trap on_err ERR
 
-set +u
 source /opt/ros/humble/setup.bash
-set -u
 
 if [ -f "install/setup.bash" ]; then
-  set +u
   source install/setup.bash
-  set -u
 fi
 
 # CI で discovery が詰まることがあるので daemon を再起動
