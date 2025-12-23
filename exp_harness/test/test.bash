@@ -60,14 +60,13 @@ timeout 30 bash -c '
   until ros2 service list 2>/dev/null | grep -q "/experiment/run"; do sleep 0.2; done
 '
 
-echo "[TEST] topic sanity (try to see /metric)"
-timeout 2 ros2 topic echo /metric > /tmp/metric_echo.log 2>&1 || true
-
-if [ ! -s /tmp/metric_echo.log ]; then
+echo "[TEST] topic sanity (receive 1 msg)"
+timeout 5 bash -c 'ros2 topic echo /metric 2>/dev/null | head -n 1 >/tmp/metric_one.log'
+if [ ! -s /tmp/metric_one.log ]; then
   echo "[TEST] ERROR: did not receive /metric"
-  tail -n 50 /tmp/metric_echo.log || true
   exit 1
 fi
+
 
 echo "[TEST] call service (wait for accepted)"
 ACCEPTED=0
