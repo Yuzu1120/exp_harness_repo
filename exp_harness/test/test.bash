@@ -115,6 +115,7 @@ if ! grep -Eq '^(experiment_id|success|note):' /tmp/exp_harness_report.log; then
   exit 1
 fi
 
+#中身が正しいか
 if ! grep -q '^experiment_id: ci_demo' /tmp/exp_harness_report.log; then
   echo "[TEST] ERROR: report id mismatch"
   echo "[TEST] ---- report log (tail) ----"
