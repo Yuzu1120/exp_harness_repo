@@ -7,6 +7,7 @@ set -euo pipefail
 export ROS2CLI_DISABLE_DAEMON=1
 
 LAUNCH_PID=""
+ECHO_PID=""
 
 on_err() {
   echo "[TEST] ERROR: dumping debug info..."
@@ -27,19 +28,24 @@ on_err() {
 cleanup() {
   echo "[TEST] cleanup"
 
+  # report receiver を止める
+  if [ -n "${ECHO_PID}" ] && kill -0 "${ECHO_PID}" 2>/dev/null; then
+    kill "${ECHO_PID}" 2>/dev/null || true
+  fi
+
   pkill -f "ros2 launch exp_harness demo.launch.py" 2>/dev/null || true
   pkill -f "experiment_server_node" 2>/dev/null || true
   pkill -f "metric_pub_node" 2>/dev/null || true
   pkill -f "report_printer_node" 2>/dev/null || true
   sleep 1
 
-  # 今回起動した launch を落とす
   if [ -n "${LAUNCH_PID}" ] && kill -0 "${LAUNCH_PID}" 2>/dev/null; then
     kill "${LAUNCH_PID}" 2>/dev/null || true
     sleep 1
     kill -9 "${LAUNCH_PID}" 2>/dev/null || true
   fi
 }
+
 trap cleanup EXIT
 trap on_err ERR
 
@@ -50,7 +56,6 @@ if [ -f "install/setup.bash" ]; then
 fi
 
 echo "[TEST] cleanup before launch"
-# 念のため（EXITのcleanupが動かないケース対策）
 pkill -f "ros2 launch exp_harness demo.launch.py" 2>/dev/null || true
 pkill -f "experiment_server_node" 2>/dev/null || true
 pkill -f "metric_pub_node" 2>/dev/null || true
@@ -71,6 +76,7 @@ for i in $(seq 1 20); do
   sleep 1
 done
 
+# ここで見えなかったら即落とす（無限待ち禁止）
 ros2 node list | grep -q "^/experiment_server$"
 ros2 node list | grep -q "^/metric_pub$"
 ros2 service list | grep -q "^/experiment/run$"
@@ -79,9 +85,9 @@ echo "[TEST] topic sanity (list only)"
 ros2 topic list | grep -q "^/metric$"
 ros2 topic list | grep -q "^/exp/report$"
 
-# 受信取り逃がし防止：echo を先に待機させる
 echo "[TEST] start report receiver BEFORE service call"
 rm -f /tmp/exp_harness_report.log
+# report は publish が一瞬のことがあるので先に待機して取り逃がし防止
 timeout 8 ros2 topic echo /exp/report --once > /tmp/exp_harness_report.log 2>&1 &
 ECHO_PID=$!
 
@@ -106,18 +112,28 @@ else
   exit 1
 fi
 
+# 受信完了まで一応待つ
+wait "${ECHO_PID}" || true
 
 # 受信できたかチェック
-if ! grep -Eq '^(experiment_id|success|note):' /tmp/exp_harness_report.log; then
+if ! grep -q '^experiment_id:' /tmp/exp_harness_report.log; then
   echo "[TEST] ERROR: report not received"
   echo "[TEST] ---- report log (tail) ----"
   tail -n 200 /tmp/exp_harness_report.log || true
   exit 1
 fi
 
-#中身が正しいか
+# 中身が正しいか（ID一致）
 if ! grep -q '^experiment_id: ci_demo' /tmp/exp_harness_report.log; then
   echo "[TEST] ERROR: report id mismatch"
+  echo "[TEST] ---- report log (tail) ----"
+  tail -n 200 /tmp/exp_harness_report.log || true
+  exit 1
+fi
+
+# success が true であることも確認
+if ! grep -Eqi '^success: (true|True)$' /tmp/exp_harness_report.log; then
+  echo "[TEST] ERROR: report success is not true"
   echo "[TEST] ---- report log (tail) ----"
   tail -n 200 /tmp/exp_harness_report.log || true
   exit 1
