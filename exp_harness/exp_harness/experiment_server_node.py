@@ -36,7 +36,7 @@ class ExperimentServer(Node):
     def __init__(self) -> None:
         super().__init__("experiment_server")
 
-        # ★重要：サービスコールバック中に別サービス(SetParameters)の応答処理が回るようにする
+        # サービスコールバック中に別サービス(SetParameters)の応答処理が回るようにする
         self.cb = ReentrantCallbackGroup()
 
         # パラメータ定義
@@ -137,7 +137,7 @@ class ExperimentServer(Node):
 
         fut = cli.call_async(req)
 
-        # ★重要：Reentrant + MultiThreadedExecutor でここが詰まらなくなる
+        #Reentrant + MultiThreadedExecutor でここが詰まらなくなる
         rclpy.spin_until_future_complete(self, fut, timeout_sec=2.0)
 
         if not fut.done():
@@ -182,7 +182,7 @@ class ExperimentServer(Node):
             res.accepted = False
             res.message = f"metric_topic が一致しません（監視中: {self.metric_topic}）"
             return res
-# --- A区間 ---
+        # --- A区間 ---
         t_a0 = time.time()
         t_a1 = t_a0 + pre_d
         while time.time() < t_a1:
