@@ -8,6 +8,8 @@ from typing import Deque, Tuple
 
 import rclpy
 from rclpy.node import Node
+from rclpy.callback_groups import ReentrantCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
 
 from std_msgs.msg import Float32
 from rcl_interfaces.msg import Parameter, ParameterType, ParameterValue
@@ -34,6 +36,9 @@ class ExperimentServer(Node):
     def __init__(self) -> None:
         super().__init__("experiment_server")
 
+        # ★重要：サービスコールバック中に別サービス(SetParameters)の応答処理が回るようにする
+        self.cb = ReentrantCallbackGroup()
+
         # パラメータ定義
         self.declare_parameter("metric_topic", "/metric")
         self.declare_parameter("report_topic", "/exp/report")
@@ -51,13 +56,24 @@ class ExperimentServer(Node):
 
         # メトリクスのリングバッファ（時刻, 値）
         self.metric_buf: Deque[Tuple[float, float]] = deque()
-        self.create_subscription(Float32, self.metric_topic, self._on_metric, 100)
+        self.create_subscription(
+            Float32,
+            self.metric_topic,
+            self._on_metric,
+            100,
+            callback_group=self.cb,
+        )
 
         # レポート publish
         self.pub_report = self.create_publisher(ExperimentReport, self.report_topic, 10)
 
         # 実験実行サービス
-        self.create_service(RunExperiment, "/experiment/run", self._on_run)
+        self.create_service(
+            RunExperiment,
+            "/experiment/run",
+            self._on_run,
+            callback_group=self.cb,
+        )
 
         self.get_logger().info(
             f"metric_topic={self.metric_topic}, report_topic={self.report_topic}, "
@@ -82,10 +98,30 @@ class ExperimentServer(Node):
                 w.push(v)
         return w
 
+    def _normalize_node_name(self, name: str) -> str:
+        """'/metric_pub' 形式に寄せる（入力が 'metric_pub' でも動くように）。"""
+        if not name:
+            return name
+        return name if name.startswith("/") else ("/" + name)
+
     def _set_param_double(self, target_node: str, param_name: str, value: float) -> bool:
         """対象ノードの double 型パラメータを設定する。"""
-        cli = self.create_client(SetParameters, f"{target_node}/set_parameters")
-        if not cli.wait_for_service(timeout_sec=2.0):
+        target_node = self._normalize_node_name(target_node)
+
+        cli = self.create_client(
+            SetParameters,
+            f"{target_node}/set_parameters",
+            callback_group=self.cb,
+        )
+
+        # 少し粘る（起動直後の保険）
+        ok = cli.wait_for_service(timeout_sec=2.0)
+        if not ok:
+            ok = cli.wait_for_service(timeout_sec=2.0)
+        if not ok:
+            ok = cli.wait_for_service(timeout_sec=2.0)
+
+        if not ok:
             self.get_logger().error(f"SetParameters が利用できません: {target_node}")
             return False
 
@@ -100,15 +136,25 @@ class ExperimentServer(Node):
         req.parameters = [p]
 
         fut = cli.call_async(req)
+
+        # ★重要：Reentrant + MultiThreadedExecutor でここが詰まらなくなる
         rclpy.spin_until_future_complete(self, fut, timeout_sec=2.0)
 
         if not fut.done():
             self.get_logger().error("パラメータ設定がタイムアウトしました")
             return False
 
-        results = fut.result().results
+        resp = fut.result()
+        if resp is None:
+            self.get_logger().error("パラメータ設定の応答がNoneです")
+            return False
+
+        results = resp.results
         if not results or not results[0].successful:
-            self.get_logger().error("パラメータ設定に失敗しました")
+            reason = ""
+            if results and hasattr(results[0], "reason"):
+                reason = str(results[0].reason)
+            self.get_logger().error(f"パラメータ設定に失敗しました {reason}".rstrip())
             return False
 
         return True
@@ -125,6 +171,8 @@ class ExperimentServer(Node):
         target_node = req.target_node if req.target_node else self.default_target_node
         param_name = req.param_name if req.param_name else self.default_param_name
 
+        target_node = self._normalize_node_name(str(target_node))
+
         a_value = float(req.a_value)
         b_value = float(req.b_value)
         pre_d = float(req.pre_duration_sec)
@@ -134,30 +182,20 @@ class ExperimentServer(Node):
             res.accepted = False
             res.message = f"metric_topic が一致しません（監視中: {self.metric_topic}）"
             return res
-
-        # --- A区間 ---
-        if not self._set_param_double(target_node, param_name, a_value):
-            res.accepted = False
-            res.message = "パラメータA の設定に失敗しました"
-            return res
-
+# --- A区間 ---
         t_a0 = time.time()
         t_a1 = t_a0 + pre_d
         while time.time() < t_a1:
-            time.sleep(0.005)
+            rclpy.spin_once(self, timeout_sec=0.01)
         pre = self._collect_stats(t_a0, t_a1)
 
         # --- B区間 ---
-        if not self._set_param_double(target_node, param_name, b_value):
-            res.accepted = False
-            res.message = "パラメータB の設定に失敗しました"
-            return res
-
         t_b0 = time.time()
         t_b1 = t_b0 + post_d
         while time.time() < t_b1:
-            time.sleep(0.005)
+            rclpy.spin_once(self, timeout_sec=0.01)
         post = self._collect_stats(t_b0, t_b1)
+
 
         # --- レポート作成 ---
         rep = ExperimentReport()
@@ -186,11 +224,7 @@ class ExperimentServer(Node):
 
         enough = (pre.n >= self.min_samples) and (post.n >= self.min_samples)
         rep.success = bool(enough)
-        rep.note = (
-            "ok"
-            if enough
-            else f"サンプル数不足（pre={pre.n}, post={post.n}）"
-        )
+        rep.note = "ok" if enough else f"サンプル数不足（pre={pre.n}, post={post.n}）"
 
         self.pub_report.publish(rep)
         self.get_logger().info(
@@ -206,12 +240,18 @@ class ExperimentServer(Node):
 def main() -> None:
     rclpy.init()
     node = ExperimentServer()
+
+    ex = MultiThreadedExecutor(num_threads=2)
+    ex.add_node(node)
+
     try:
-        rclpy.spin(node)
+        ex.spin()
     finally:
+        ex.shutdown()
         node.destroy_node()
         rclpy.shutdown()
 
 
 if __name__ == "__main__":
     main()
+
