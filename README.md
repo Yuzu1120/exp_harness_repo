@@ -172,6 +172,9 @@ note: ok
 - **pre_mean / post_mean**  
   パラメータ変更前後の平均値
 
+- **pre_var / post_var**  
+  パラメータ変更前後の分散
+
 - **delta_mean**  
   変化量（post − pre）
 
