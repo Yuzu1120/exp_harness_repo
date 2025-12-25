@@ -1,4 +1,4 @@
-# exp_harness_repo## 各項目の意味（要点）
+# exp_harness_repo
 
 ## 概要（何をするソフトか）
 
@@ -97,7 +97,7 @@ source install/setup.bash
 ros2 topic echo /exp/report
 ```
 
-※ この時点では**何も表示されなくて正常**です。 
+※ この時点では**何も表示されなくて正常**です。  
 （レポートがpublish されるのを待っています）
 
 ### ターミナル３：実験を実行（サービス呼び出し）
@@ -168,7 +168,7 @@ note: ok
 - **score**  
   標準偏差で正規化した変化の大きさ
 
-- **success**  ## 各項目の意味（要点）
+- **success**  
   サンプル数が十分かどうか
  
 
