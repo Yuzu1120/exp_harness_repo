@@ -19,6 +19,10 @@
 ロボットシステム学（ROS 2）における  
 **「パラメータ変更が挙動に与える影響を定量的に評価する」** ためのツールです。
 
+※ 本リポジトリ名は `exp_harness_repo` ですが、    
+  ROS 2 の **パッケージ名は `exp_harness`** です。  
+  そのため、起動時は `ros2 launch exp_harness ...` を使用します。
+
 ## システム構成
 
 本リポジトリでは以下のノードが動作します。
@@ -40,12 +44,12 @@
 - ROS 2 Humble Hawksbill
 - Python 3.10
 
-### 必要ライブラリ
+### 依存パッケージ(Ros 2)
 - rclpy  
 - std_msgs  
 - rcl_interfaces  
 
-※ すべてROS 2 Humble標準ライブラリのみを使用しています。
+※ すべてROS 2 Humble標準パッケージのみを使用しています。
 
 ## インストール手順
 
@@ -69,13 +73,14 @@ git clone https://github.com/Yuzu1120/exp_harness_repo.git
 ```bash
 cd ~/ros2_ws
 source /opt/ros/humble/setup.bash
-colcon build
+colcon build --symlink-install
+source install/setup.bash
 ```
 
 ## 使い方（重要：ターミナルの順番）
 
 このパッケージは**３つのターミナル**を使います。
-順番を間違えると表示されないので注意してください。
+**順番を間違えると表示されない**ので注意してください。
 
 ### ターミナル１：ノード起動（最後まで閉じない）
 
@@ -137,8 +142,8 @@ exp_harness_interfaces.srv.RunExperiment_Response(
 
 ```test
 stamp:
-  sec: 1766589094
-  nanosec: 754482388
+  sec: 1766671365
+  nanosec: 433872370
 experiment_id: ci_demo
 metric_topic: /metric
 target_node: /metric_pub
@@ -148,13 +153,13 @@ b_value: 1.5
 pre_duration_sec: 0.7
 post_duration_sec: 0.7
 pre_n: 35
-pre_mean: -0.8798838002341134
-pre_var: 0.007506400850366156
+pre_mean: -0.18034233360418248
+pre_var: 0.03936059062857802
 post_n: 35
-post_mean: -0.9496799775532313
-post_var: 0.00290934384527031
-delta_mean: -0.06979617731911791
-score: 0.8055931431223831
+post_mean: 0.48904339415686476
+post_var: 0.029425072485350992
+delta_mean: 0.6693857277610472
+score: 3.3740044032091876
 success: true
 note: ok
 ```
