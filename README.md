@@ -81,9 +81,7 @@ colcon build
 このパッケージは**３つのターミナル**を使います。
 順番を間違えると表示されないので注意してください。
 
----
-
-## ターミナル１：ノード起動（最後まで閉じない）
+### ターミナル１：ノード起動（最後まで閉じない）
 
 ```bash
 cd ~/ros2_ws
@@ -96,9 +94,7 @@ ros2 launch exp_harness demo.launch.py
 - `Publishing metric on /metric`
 - `metric_topic=/metric, report_topic=/exp/report`
 
----
-
-## ターミナル２：レポート待機
+### ターミナル２：レポート待機
 
 ```bash
 cd ~/ros2_ws
@@ -110,9 +106,7 @@ ros2 topic echo /exp/report
 ※ この時点では**何も表示されなくて正常**です。
 （レポートがpublish されるのを待っています）
 
----
-
-## ターミナル３：実験を実行（サービス呼び出し）
+### ターミナル３：実験を実行（サービス呼び出し）
 
 ```bash
 cd ~/ros2_ws
@@ -140,8 +134,6 @@ exp_harness_interfaces.srv.RunExperiment_Response(
   message='レポートをpublish しました'
 )
 ```
-
----
 
 ## 出力されるレポート例
 
@@ -171,16 +163,20 @@ success: true
 note: ok
 ```
 
-### 各項目の意味（要点）
+## 各項目の意味（要点）
 
-- **pre_mean / post_mean** 
+- **pre_mean / post_mean**  
   パラメータ変更前後の平均値
-- **delta_mean** 
+
+- **delta_mean**  
   変化量（post − pre）
-- **score** 
+
+- **score**  
   標準偏差で正規化した変化の大きさ
-- **success** 
+
+- **success**  
   サンプル数が十分かどうか
+ 
 
 ## テストについて
 
