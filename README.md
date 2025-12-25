@@ -1,5 +1,7 @@
 # exp_harness_repo
 
+![CI](https://github.com/Yuzu1120/exp_harness/actions/workflows/ci.yml/badge.svg)
+
 ## 概要（何をするソフトか）
 
 **exp_harness_repo** は、ROS 2 上で  
