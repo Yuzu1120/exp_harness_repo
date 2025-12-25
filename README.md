@@ -27,8 +27,6 @@
 | experiment_server | 実験制御・統計計算・レポート生成 |
 | report_printer | `ExperimentReport` を購読して表示 |
 
----
-
 ## 対応環境
 
 ### OS
