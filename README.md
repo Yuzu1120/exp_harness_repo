@@ -1,8 +1,8 @@
-# exp_harness
+# exp_harness_repo
 
 ## 概要（何をするソフトか）
 
-**exp_harness** は、ROS 2 上で  
+**exp_harness_repo** は、ROS 2 上で  
 **ノードのパラメータを変更した前後で、トピックの統計量を自動比較する実験用ハーネス**です。
 
 サービス呼び出し1 回で、以下を自動で実行します。
@@ -12,7 +12,7 @@
 - パラメータB を設定
 - 再度メトリクスを計測
 - 前後の平均・分散・差分を計算
-- 結果を `ExperimentReport` メッセージとして publish
+- 結果を**ExperimentReport メッセージとしてpublish**
 
 ロボットシステム学（ROS 2）における  
 **「パラメータ変更が挙動に与える影響を定量的に評価する」** ためのツールです。
@@ -81,7 +81,9 @@ colcon build
 このパッケージは**３つのターミナル**を使います。
 順番を間違えると表示されないので注意してください。
 
-### ターミナル１：ノード起動（最後まで閉じない）
+---
+
+## ターミナル１：ノード起動（最後まで閉じない）
 
 ```bash
 cd ~/ros2_ws
@@ -94,7 +96,9 @@ ros2 launch exp_harness demo.launch.py
 - `Publishing metric on /metric`
 - `metric_topic=/metric, report_topic=/exp/report`
 
-### ターミナル２：レポート待機
+---
+
+## ターミナル２：レポート待機
 
 ```bash
 cd ~/ros2_ws
@@ -103,10 +107,12 @@ source install/setup.bash
 ros2 topic echo /exp/report
 ```
 
-※ この時点では**何も表示されなくて正常**です
-（レポートがpublish されるのを待っています）。
+※ この時点では**何も表示されなくて正常**です。
+（レポートがpublish されるのを待っています）
 
-### ターミナル３：実験を実行（サービス呼び出し）
+---
+
+## ターミナル３：実験を実行（サービス呼び出し）
 
 ```bash
 cd ~/ros2_ws
@@ -167,13 +173,13 @@ note: ok
 
 ### 各項目の意味（要点）
 
-- pre_mean / post_mean
+- **pre_mean / post_mean** 
   パラメータ変更前後の平均値
-- delta_mean
+- **delta_mean** 
   変化量（post − pre）
-- score
+- **score** 
   標準偏差で正規化した変化の大きさ
-- success
+- **success** 
   サンプル数が十分かどうか
 
 ## テストについて
