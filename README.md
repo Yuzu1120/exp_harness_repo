@@ -197,5 +197,10 @@ GitHub Actions 上で自動実行されています。
 - このパッケージには、千葉工業大学「ロボットシステム学」授業資料に含まれるコード例を参考・引用した部分があります。
   - 引用元（ライセンス：CC-BY-SA 4.0 by Ryuichi Ueda）：
     - [ryuichiueda/my_slides robosys_2025](https://github.com/ryuichiueda/my_slides/tree/master/robosys_2025)
+- また、このパッケージには、以下のウェブサイトに掲載されている内容も参考にしています。
+  - https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html
+  - https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Service-And-Client.html
+  - https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Parameters/Understanding-ROS2-Parameters.html
+  - https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm
 
 © 2025 Yuzuki Fujita
