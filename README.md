@@ -1,6 +1,6 @@
 # exp_harness_repo
 
-![CI](https://github.com/Yuzu1120/exp_harness/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/Yuzu1120/exp_harness_repo/actions/workflows/ci.yml/badge.svg)
 
 ## 概要（何をするソフトか）
 
