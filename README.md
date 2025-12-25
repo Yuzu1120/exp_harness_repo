@@ -1,4 +1,4 @@
-# exp_harness_repo
+# exp_harness_repo## 各項目の意味（要点）
 
 ## 概要（何をするソフトか）
 
@@ -59,7 +59,7 @@ cd ~/ros2_ws/src
 ※ `~/ros2_ws/src` ディレクトリで実行してください。
 
 ```bash
-git clone https://github.com/Yuzu1120/exp_harness.git
+git clone https://github.com/Yuzu1120/exp_harness_repo.git
 ```
 
 ### 3. ビルド
@@ -97,7 +97,7 @@ source install/setup.bash
 ros2 topic echo /exp/report
 ```
 
-※ この時点では**何も表示されなくて正常**です。
+※ この時点では**何も表示されなくて正常**です。 
 （レポートがpublish されるのを待っています）
 
 ### ターミナル３：実験を実行（サービス呼び出し）
@@ -168,7 +168,7 @@ note: ok
 - **score**  
   標準偏差で正規化した変化の大きさ
 
-- **success**  
+- **success**  ## 各項目の意味（要点）
   サンプル数が十分かどうか
  
 
