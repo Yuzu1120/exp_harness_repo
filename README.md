@@ -54,26 +54,16 @@
 
 ※ すべてROS 2 Humble標準パッケージのみを使用しています。
 
-## インストール手順
+## ビルド方法（参考）
 
-### 1. ワークスペース作成（未作成の場合）
+※ ROS 2 のパッケージはインストール方法が規格化されているため、  
+以下は **動作確認用の一例**です。
 
 ```bash
 mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws/src
-```
-
-### 2. リポジトリの取得
-
-※ `~/ros2_ws/src` ディレクトリで実行してください。
-
-```bash
 git clone https://github.com/Yuzu1120/exp_harness_repo.git
-```
 
-### 3. ビルド
-
-```bash
 cd ~/ros2_ws
 source /opt/ros/humble/setup.bash
 colcon build --symlink-install
