@@ -60,14 +60,14 @@
 以下は **動作確認用の一例**です。
 
 ```bash
-mkdir -p ~/ros2_ws/src
-cd ~/ros2_ws/src
-git clone https://github.com/Yuzu1120/exp_harness_repo.git
+$ mkdir -p ~/ros2_ws/src
+$ cd ~/ros2_ws/src
+$ git clone https://github.com/Yuzu1120/exp_harness_repo.git
 
-cd ~/ros2_ws
-source /opt/ros/humble/setup.bash
-colcon build --symlink-install
-source install/setup.bash
+$ cd ~/ros2_ws
+$ source /opt/ros/humble/setup.bash
+$ colcon build --symlink-install
+$ source install/setup.bash
 ```
 
 ## 使い方（重要：ターミナルの順番）
@@ -78,10 +78,10 @@ source install/setup.bash
 ### ターミナル１：ノード起動（最後まで閉じない）
 
 ```bash
-cd ~/ros2_ws
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-ros2 launch exp_harness demo.launch.py
+$ cd ~/ros2_ws
+$ source /opt/ros/humble/setup.bash
+$ source install/setup.bash
+$ ros2 launch exp_harness demo.launch.py
 ```
 
 起動後、以下のようなログが出れば正常です。
@@ -91,10 +91,10 @@ ros2 launch exp_harness demo.launch.py
 ### ターミナル２：レポート待機
 
 ```bash
-cd ~/ros2_ws
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-ros2 topic echo /exp/report
+$ cd ~/ros2_ws
+$ source /opt/ros/humble/setup.bash
+$ source install/setup.bash
+$ ros2 topic echo /exp/report
 ```
 
 ※ この時点では**何も表示されなくて正常**です。  
@@ -103,29 +103,25 @@ ros2 topic echo /exp/report
 ### ターミナル３：実験を実行（サービス呼び出し）
 
 ```bash
-cd ~/ros2_ws
-source /opt/ros/humble/setup.bash
-source install/setup.bash
+$ cd ~/ros2_ws
+$ source /opt/ros/humble/setup.bash
+$ source install/setup.bash
 
-ros2 service call /experiment/run exp_harness_interfaces/srv/RunExperiment "{
-  experiment_id: 'ci_demo',
-  metric_topic: '/metric',
-  target_node: '/metric_pub',
-  param_name: 'gain',
-  a_value: 0.5,
-  b_value: 1.5,
-  pre_duration_sec: 0.7,
-  post_duration_sec: 0.7
-}"
-```
+$ ros2 service call /experiment/run exp_harness_interfaces/srv/RunExperiment "{
+    experiment_id: 'ci_demo',
+    metric_topic: '/metric',
+    target_node: '/metric_pub',
+    param_name: 'gain',
+    a_value: 0.5,
+    b_value: 1.5,
+    pre_duration_sec: 0.7,
+    post_duration_sec: 0.7
+  }"
 
-### サービスの戻り値（例）
-
-```test
 response:
 exp_harness_interfaces.srv.RunExperiment_Response(
   accepted=True,
-  message='レポートをpublish しました'
+  message='レポートを publish しました'
 )
 ```
 
