@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/Yuzu1120/exp_harness_repo/actions/workflows/ci.yml/badge.svg)
 
-## 概要（何をするソフトか）
+## 概要
 
 **exp_harness_repo** は、ROS 2 上で  
 **ノードのパラメータを変更した前後で、トピックの統計量を自動比較する実験用ハーネス**です。
@@ -16,25 +16,35 @@
 - 前後の平均・分散・差分を計算
 - 結果を**ExperimentReport メッセージとしてpublish**
 
-ロボットシステム学（ROS 2）における  
-**「パラメータ変更が挙動に与える影響を定量的に評価する」** ためのツールです。
+## パッケージ構成
 
-本ツールは、制御パラメータやゲイン調整の効果を  
-**定量的に比較したいロボット開発者・学生向け**に設計されています。
+本リポジトリには以下の ROS 2 パッケージが含まれています。
 
-※ 本リポジトリ名は `exp_harness_repo` ですが、    
-  ROS 2 の **パッケージ名は `exp_harness`** です。  
-  そのため、起動時は `ros2 launch exp_harness ...` を使用します。
+| パッケージ名 | 内容 |
+|---|---|
+| exp_harness | 実験制御・統計計算・レポート生成 |
+| exp_harness_interfaces | サービス・メッセージ定義 |
 
-## システム構成
-
-本リポジトリでは以下のノードが動作します。
+## ノード一覧
 
 | ノード名 | 役割 |
 |---|---|
 | metric_pub | メトリクス（Float32）を `/metric` に publish |
 | experiment_server | 実験制御・統計計算・レポート生成 |
 | report_printer | `ExperimentReport` を購読して表示 |
+
+## トピック一覧
+
+| トピック名 | 型 | 内容 |
+|---|---|---|
+| `/metric` | std_msgs/msg/Float32 | 計測対象のメトリクス |
+| `/exp/report` | exp_harness_interfaces/msg/ExperimentReport | 実験結果レポート |
+
+## サービス一覧
+
+| サービス名 | 型 | 内容 |
+|---|---|---|
+| `/experiment/run` | exp_harness_interfaces/srv/RunExperiment | 実験の実行要求 |
 
 ## 対応環境
 
@@ -43,7 +53,7 @@
 - WSL2（Ubuntu 22.04）
 - Linux 環境（ROS 2 Humble）
 
-### 必要ソフトウェア
+### 必要なソフトウェア
 - ROS 2 Humble Hawksbill
 - Python 3.10
 
@@ -57,7 +67,7 @@
 ## ビルド方法（参考）
 
 ※ ROS 2 のパッケージはインストール方法が規格化されているため、  
-以下は **動作確認用の一例**です。
+以下は動作確認用の一例です。
 
 ```bash
 $ mkdir -p ~/ros2_ws/src
@@ -70,43 +80,17 @@ $ colcon build --symlink-install
 $ source install/setup.bash
 ```
 
-## 使い方（重要：ターミナルの順番）
+## 使い方
 
-このパッケージは**３つのターミナル**を使います。  
-**順番を間違えると表示されない**ので注意してください。
-
-### ターミナル１：ノード起動（最後まで閉じない）
+まずノードを起動します。
 
 ```bash
-$ cd ~/ros2_ws
-$ source /opt/ros/humble/setup.bash
-$ source install/setup.bash
 $ ros2 launch exp_harness demo.launch.py
 ```
 
-起動後、以下のようなログが出れば正常です。
-- `Publishing metric on /metric`
-- `metric_topic=/metric, report_topic=/exp/report`
-
-### ターミナル２：レポート待機
+ノード起動後、以下のサービスを呼び出すことで実験を実行できます。
 
 ```bash
-$ cd ~/ros2_ws
-$ source /opt/ros/humble/setup.bash
-$ source install/setup.bash
-$ ros2 topic echo /exp/report
-```
-
-※ この時点では**何も表示されなくて正常**です。  
-（レポートがpublish されるのを待っています）
-
-### ターミナル３：実験を実行（サービス呼び出し）
-
-```bash
-$ cd ~/ros2_ws
-$ source /opt/ros/humble/setup.bash
-$ source install/setup.bash
-
 $ ros2 service call /experiment/run exp_harness_interfaces/srv/RunExperiment "{
     experiment_id: 'ci_demo',
     metric_topic: '/metric',
@@ -117,19 +101,13 @@ $ ros2 service call /experiment/run exp_harness_interfaces/srv/RunExperiment "{
     pre_duration_sec: 0.7,
     post_duration_sec: 0.7
   }"
-
-response:
-exp_harness_interfaces.srv.RunExperiment_Response(
-  accepted=True,
-  message='レポートを publish しました'
-)
 ```
+
+実験結果は`/exp/report`トピックにpublish されます。
 
 ## 出力されるレポート例
 
-**ターミナル２**に以下のような出力が表示されます。
-
-```test
+```text
 stamp:
   sec: 1766671365
   nanosec: 433872370
@@ -173,25 +151,15 @@ note: ok
 
 ## テストについて
 
-本リポジトリには`test/test.bash`による自動テストが含まれています。
-テストでは以下を確認しています。
-
-- launch が正常に起動する
-- ノード・サービス・トピックが存在する
-- RunExperiment サービスが accepted=True を返す
-- ExperimentReport が実際に publish される
-- レポート内容が正しい形式である
-
-サービス呼び出し結果の確認に加え、  
-**実際にレポートが publish されることまで検証**しています。
-
-GitHub Actions 上で自動実行されています。
+本リポジトリには自動テストが含まれています。
+詳細は`TEST.md`を参照してください。
 
 ## ライセンス・謝辞
 - このソフトウェアパッケージは、3条項BSDライセンスの下、再頒布および使用が許可されます。
-- このパッケージには、千葉工業大学「ロボットシステム学」授業資料に含まれるコード例を参考・引用した部分があります。
-  - 引用元（ライセンス：CC-BY-SA 4.0 by Ryuichi Ueda）：
-    - [ryuichiueda/my_slides robosys_2025](https://github.com/ryuichiueda/my_slides/tree/master/robosys_2025)
+- このパッケージは、千葉工業大学「ロボットシステム学」授業資料を参考にして作成しました。
+  - https://ryuichiueda.github.io/slides_marp/robosys2025/lesson8.html
+  - https://ryuichiueda.github.io/slides_marp/robosys2025/lesson9.html
+  - https://ryuichiueda.github.io/slides_marp/robosys2025/lesson10.html
 - また、このパッケージには、以下のウェブサイトに掲載されている内容も参考にしています。
   - https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html
   - https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Service-And-Client.html
