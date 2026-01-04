@@ -14,7 +14,7 @@
 - パラメータ B を設定
 - 再度メトリクスを計測
 - 前後の平均・分散・差分を計算
-- 結果を**ExperimentReport メッセージとしてpublish**
+- 結果をExperimentReport メッセージとしてpublish
 
 ## パッケージ構成
 
@@ -151,16 +151,16 @@ note: ok
 
 ## テストについて
 
-本リポジトリには自動テストが含まれています。
+本リポジトリには自動テストが含まれています。  
 詳細は`TEST.md`を参照してください。
 
 ## ライセンス・謝辞
 - このソフトウェアパッケージは、3条項BSDライセンスの下、再頒布および使用が許可されます。
-- このパッケージは、千葉工業大学「ロボットシステム学」授業資料を参考にして作成しました。
+- 本パッケージは、千葉工業大学「ロボットシステム学」の授業資料を参考にして作成しました。
   - https://ryuichiueda.github.io/slides_marp/robosys2025/lesson8.html
   - https://ryuichiueda.github.io/slides_marp/robosys2025/lesson9.html
   - https://ryuichiueda.github.io/slides_marp/robosys2025/lesson10.html
-- また、このパッケージには、以下のウェブサイトに掲載されている内容も参考にしています。
+- また、本パッケージの作成にあたっては、以下のウェブサイトの内容を参考にしています。
   - https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html
   - https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Service-And-Client.html
   - https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Parameters/Understanding-ROS2-Parameters.html
